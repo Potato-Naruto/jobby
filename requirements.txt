@@ -1,0 +1,8 @@
+playwright
+pypdf
+pydantic
+openai
+python-docx
+requests
+rich
+questionary

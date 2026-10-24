@@ -1,0 +1,38 @@
+{
+  "process engineer in texas": {
+    "titles": [
+      "process engineer"
+    ],
+    "locations": [
+      "texas"
+    ],
+    "remote": "exclude",
+    "days": 30,
+    "min_salary": 0,
+    "keep_unknown_salary": true,
+    "exclude_words": []
+  },
+  "please-hire-me targets": {
+    "titles": [
+      "process engineer",
+      "chemical engineer",
+      "packaging engineer",
+      "quality engineer",
+      "supply chain engineer",
+      "manufacturing engineer"
+    ],
+    "locations": [
+      "Dallas, Texas"
+    ],
+    "remote": "include",
+    "days": 0,
+    "min_salary": 65000,
+    "keep_unknown_salary": true,
+    "exclude_words": [],
+    "levels": [
+      "entry"
+    ],
+    "unclear_level": true,
+    "new_only": true
+  }
+}

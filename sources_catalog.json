@@ -1,0 +1,309 @@
+{
+ "companies": {
+  "greenhouse": [
+   "stripe",
+   "airbnb",
+   "databricks",
+   "cloudflare",
+   "figma",
+   "discord",
+   "reddit",
+   "lyft",
+   "instacart",
+   "robinhood",
+   "coinbase",
+   "datadog",
+   "mongodb",
+   "elastic",
+   "gitlab",
+   "asana",
+   "twilio",
+   "okta",
+   "anthropic",
+   "samsara",
+   "flexport",
+   "scaleai",
+   "brex",
+   "affirm",
+   "carta",
+   "chime",
+   "duolingo",
+   "dropbox",
+   "squarespace",
+   "peloton",
+   "toast",
+   "webflow",
+   "gusto",
+   "vercel",
+   "cockroachlabs",
+   "fivetran",
+   "airtable",
+   "mixpanel",
+   "pagerduty",
+   "newrelic",
+   "tanium",
+   "rubrik",
+   "sofi",
+   "upstart",
+   "spacex",
+   "relativity",
+   "lucidmotors",
+   "project44",
+   "fourkites",
+   "waymo",
+   "nuro",
+   "motive",
+   "verkada",
+   "gleanwork",
+   "abnormalsecurity",
+   "wizinc",
+   "grafanalabs",
+   "starburst",
+   "stabilityai",
+   "epicgames",
+   "riotgames",
+   "roblox",
+   "bungie",
+   "carvana",
+   "faire",
+   "ritual",
+   "echo",
+   "anaplan"
+  ],
+  "lever": [
+   "palantir",
+   "spotify",
+   "weride",
+   "coupa",
+   "crypto",
+   "zoox",
+   "outreach",
+   "anchorage",
+   "binance",
+   "matchgroup",
+   "tala",
+   "wealthfront",
+   "leverdemo"
+  ],
+  "ashby": [
+   "openai",
+   "ramp",
+   "notion",
+   "linear",
+   "posthog",
+   "supabase",
+   "clerk",
+   "replit",
+   "cursor",
+   "perplexity",
+   "cohere",
+   "elevenlabs",
+   "harvey",
+   "sierra",
+   "decagon",
+   "writer",
+   "vanta",
+   "drata",
+   "watershed"
+  ],
+  "workday": [
+   [
+    "3m",
+    "wd1",
+    "Search"
+   ],
+   [
+    "cat",
+    "wd5",
+    "CaterpillarCareers"
+   ],
+   [
+    "nvidia",
+    "wd5",
+    "NVIDIAExternalCareerSite"
+   ],
+   [
+    "target",
+    "wd5",
+    "targetcareers"
+   ],
+   [
+    "ngc",
+    "wd1",
+    "Northrop_Grumman_External_Site"
+   ],
+   [
+    "boeing",
+    "wd1",
+    "EXTERNAL_CAREERS"
+   ],
+   [
+    "kimberlyclark",
+    "wd1",
+    "GLOBAL"
+   ],
+   [
+    "pg",
+    "wd5",
+    "1000"
+   ],
+   [
+    "pfizer",
+    "wd1",
+    "PfizerCareers"
+   ],
+   [
+    "rockwellautomation",
+    "wd1",
+    "External_Rockwell_Automation"
+   ],
+   [
+    "shell",
+    "wd3",
+    "ShellCareers"
+   ],
+   [
+    "chevron",
+    "wd5",
+    "jobs"
+   ],
+   [
+    "conocophillips",
+    "wd1",
+    "External"
+   ],
+   [
+    "westlake",
+    "wd1",
+    "Westlake"
+   ],
+   [
+    "att",
+    "wd1",
+    "ATTGeneral"
+   ],
+   [
+    "cardinalhealth",
+    "wd1",
+    "EXT"
+   ],
+   [
+    "kbr",
+    "wd5",
+    "KBR_Careers"
+   ],
+   [
+    "bakerhughes",
+    "wd5",
+    "BakerHughes"
+   ],
+   [
+    "hp",
+    "wd5",
+    "ExternalCareerSite"
+   ],
+   [
+    "intel",
+    "wd1",
+    "External"
+   ],
+   [
+    "micron",
+    "wd1",
+    "External"
+   ]
+  ],
+  "smartrecruiters": [
+   "McDonaldsCorporation",
+   "ServiceNow",
+   "Experian",
+   "LinkedIn3",
+   "Canva",
+   "BoschGroup",
+   "NielsenIQ",
+   "LVMH"
+  ],
+  "workable": [
+   "huggingface"
+  ],
+  "recruitee": [
+   "bunq",
+   "personio"
+  ]
+ },
+ "boards": {
+  "Monster": "https://www.monster.com/jobs/search?q={q}&where={l}",
+  "CareerBuilder": "https://www.careerbuilder.com/jobs?keywords={q}&location={l}",
+  "SimplyHired": "https://www.simplyhired.com/search?q={q}&l={l}",
+  "Snagajob": "https://www.snagajob.com/search?q={q}&w={l}",
+  "Dice": "https://www.dice.com/jobs?q={q}&location={l}",
+  "Talent.com": "https://www.talent.com/jobs?k={q}&l={l}",
+  "Jobrapido": "https://us.jobrapido.com/?w={q}&l={l}",
+  "Google Jobs": "https://www.google.com/search?q={q}+jobs+in+{l}&ibp=htl;jobs",
+  "Idealist": "https://www.idealist.org/en/jobs?q={q}",
+  "Built In": "https://builtin.com/jobs?search={q}",
+  "Welcome to the Jungle": "https://www.welcometothejungle.com/en/jobs?query={q}",
+  "Levels.fyi": "https://www.levels.fyi/jobs?searchText={q}",
+  "Working Nomads": "https://www.workingnomads.com/jobs?q={q}",
+  "JustRemote": "https://justremote.co/remote-jobs?search={q}",
+  "Remote Rocketship": "https://www.remoterocketship.com/?search={q}",
+  "Dynamite Jobs": "https://dynamitejobs.com/remote-jobs?q={q}",
+  "Remote100k": "https://remote100k.com/?q={q}",
+  "NoDesk": "https://nodesk.co/remote-jobs/?q={q}",
+  "The Ladders": "https://www.theladders.com/jobs/search-jobs?keywords={q}&location={l}",
+  "Recruit.net": "https://www.recruit.net/search-jobs?q={q}&l={l}",
+  "Nexxt": "https://www.nexxt.com/jobs/search?keywords={q}&location={l}",
+  "Jobs.com": "https://www.jobs.com/jobs?q={q}&l={l}",
+  "Robert Half": "https://www.roberthalf.com/us/en/jobs/all/{q}",
+  "Randstad": "https://www.randstadusa.com/jobs/search/?q={q}&l={l}",
+  "Adecco": "https://www.adeccousa.com/jobs/?k={q}&l={l}",
+  "Aerotek": "https://www.aerotek.com/en-us/job-search?keyword={q}&location={l}",
+  "Insight Global": "https://insightglobal.com/jobs/?s={q}",
+  "Kforce": "https://www.kforce.com/find-work/search-jobs/?keywords={q}&location={l}",
+  "Apex Systems": "https://www.apexsystems.com/search-jobs?keywords={q}&location={l}",
+  "Hays": "https://www.hays.com/job-search?q={q}",
+  "Express Employment": "https://www.expresspros.com/Find-A-Job/Job-Search.aspx?q={q}",
+  "Rigzone": "https://www.rigzone.com/oil/jobs/search/?kw={q}",
+  "Energy Jobline": "https://www.energyjobline.com/jobs?keywords={q}&location={l}",
+  "IEEE Job Site": "https://jobs.ieee.org/jobs/?keywords={q}",
+  "CSCMP Careers": "https://careers.cscmp.org/jobs/?keywords={q}",
+  "SHRM Jobs": "https://jobs.shrm.org/jobs/?keywords={q}",
+  "ACS Careers": "https://chemistryjobs.acs.org/jobs/?keywords={q}",
+  "NSPE Jobs": "https://careers.nspe.org/jobs/?keywords={q}",
+  "SWE Career Center": "https://careers.swe.org/jobs/?keywords={q}",
+  "NSBE Careers": "https://careers.nsbe.org/jobs/?keywords={q}",
+  "EngineerJobs": "https://www.engineerjobs.com/jobs/?keywords={q}&location={l}",
+  "Handshake": "https://app.joinhandshake.com/stu/postings?query={q}",
+  "RippleMatch": "https://ripplematch.com/jobs?q={q}",
+  "College Recruiter": "https://www.collegerecruiter.com/job-search?keywords={q}&location={l}",
+  "Experteer": "https://www.experteer.com/jobs?q={q}",
+  "Jobspider": "https://www.jobspider.com/job/job-search-results.asp?keyword={q}",
+  "Careerjet": "https://www.careerjet.com/search/jobs?s={q}&l={l}",
+  "Jobinventory": "https://www.jobinventory.com/search?q={q}&l={l}",
+  "Whatjobs": "https://www.whatjobs.com/jobs/{q}",
+  "Mitula": "https://jobs.mitula.us/jobs?q={q}&l={l}",
+  "Craigslist Dallas": "https://dallas.craigslist.org/search/jjj?query={q}",
+  "Craigslist Austin": "https://austin.craigslist.org/search/jjj?query={q}",
+  "Craigslist Houston": "https://houston.craigslist.org/search/jjj?query={q}",
+  "Craigslist San Antonio": "https://sanantonio.craigslist.org/search/jjj?query={q}",
+  "AngelList Talent": "https://angel.co/jobs?q={q}",
+  "Otta": "https://app.otta.com/jobs?q={q}",
+  "Cord": "https://cord.co/jobs?q={q}",
+  "Hired": "https://hired.com/jobs?q={q}",
+  "Underdog.io": "https://underdog.io/jobs?q={q}",
+  "Jobot": "https://jobot.com/search?q={q}&l={l}",
+  "Vettery/Adecco": "https://www.vettery.com/jobs?q={q}",
+  "Hirect": "https://www.hirect.com/jobs?q={q}",
+  "Journalism Jobs": "https://www.journalismjobs.com/job-listings?keywords={q}",
+  "Higher Ed Jobs": "https://www.higheredjobs.com/search/default.cfm?keyword={q}&location={l}",
+  "Chronicle Vitae": "https://jobs.chronicle.com/jobs/?keywords={q}",
+  "Science Careers": "https://jobs.sciencecareers.org/jobs/?keywords={q}",
+  "Nature Careers": "https://www.nature.com/naturecareers/jobs?q={q}",
+  "HealthECareers": "https://www.healthecareers.com/search-jobs?keywords={q}&location={l}",
+  "Vivian Health": "https://www.vivian.com/jobs/?q={q}",
+  "CyberSecJobs": "https://www.cybersecurityjobs.com/jobs?q={q}",
+  "ClearanceJobs": "https://www.clearancejobs.com/jobs?keywords={q}&loc={l}",
+  "Military.com Jobs": "https://www.military.com/veteran-jobs/search?q={q}&l={l}",
+  "RecruitMilitary": "https://recruitmilitary.com/jobs?q={q}"
+ }
+}

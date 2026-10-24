@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+resume.pdf
+user_profile.json
+qa_cache.json
+jobs.json
+seen_jobs.json
+outreach.json
+job_contacts.html
+state/
