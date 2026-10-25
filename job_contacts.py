@@ -45,8 +45,12 @@ def fetch_job(url: str) -> dict:
     if not job["role"] and not re.search(r"just a moment|access denied|attention required|403|captcha", page[:3000], re.I):
         m = re.search(r"<title[^>]*>(.*?)</title>", page, flags=re.S | re.I)
         title = html.unescape(m.group(1)).strip() if m else ""
-        m2 = re.match(r"(.+?)\s+(?:at|@|-|\|)\s+(.+?)(?:\s+[-|]\s+.*)?$", title)
-        if m2:
+        m2 = re.match(r"(.+?)\s+\|\s+([^|]+)$", title) or re.match(r"(.+?)\s+(?:at|@|-|\|)\s+(.+?)(?:\s+[-|]\s+.*)?$", title)
+        mo = re.search(r'hiringOrganization"\s+content="([^"]+)"', page)
+        if mo:
+            job["company"] = html.unescape(mo.group(1)).strip()
+            job["role"] = re.sub(r"\s*\|.*$", "", title).strip()
+        elif m2:
             job["role"], job["company"] = m2.group(1).strip(), m2.group(2).strip()
         else:
             job["role"] = title
@@ -59,6 +63,7 @@ def fetch_job(url: str) -> dict:
         m = re.search(r"/jobs?/(?:[^/]+/)*([\w-]{8,}?)(?:_[A-Z]*\d+)?(?:[/?#]|$)", url)
         if m:
             job["role"] = m.group(1).replace("-", " ").title()
+    job["role"] = re.sub(r"(?i)\s*job details\s*$", "", job["role"]).strip()
     if not job["text"]:
         job["text"] = re.sub(r"\s+", " ", re.sub(r"<(script|style)[^>]*>.*?</\1>|<[^>]+>", " ", page, flags=re.S | re.I))[:3000]
     return job
