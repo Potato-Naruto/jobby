@@ -92,17 +92,25 @@ def _response_score(p: dict) -> int:
     sc = 0
     if re.search(r"recruit|talent|sourc|early careers?|university|campus|people partner", t):
         sc += 5
-    if re.search(r"graduate|rotation|grow|early career|associate|junior|i|entry|intern|analyst", t):
+    if re.search(r"graduate|rotation|grow\b|early career|associate|\bjunior|\bi\b|entry|intern|analyst", t):
         sc += 4
     if re.search(r"engineer|specialist|coordinator", t) and not re.search(r"senior|sr\.?|principal|staff|lead|manager|director|chief|head", t):
         sc += 3
     if re.search(r"senior manager|manager|lead|principal|staff", t):
         sc += 1
-    if re.search(r"general manager|director|vp|vice president|president|chief|head of|gm", t):
+    if re.search(r"general manager|director|vp\b|vice president|president|chief|head of|\bgm\b", t):
         sc -= 4
     if "..." in t and not t.strip():
         sc -= 1
     return sc
+
+
+def _is_student(p: dict) -> bool:
+    """Students and job-seekers can't help with hiring, so they're never suggested."""
+    head = p["title"].lower()
+    return bool(re.search(r"\bstudents?\b|\bgraduated\b|\bseeking\b|\baspiring\b|looking for|open to work|\bundergrad|\bcandidate\b|"
+                          r"\b(b\.?s\.?|m\.?s\.?)\s+(student|candidate)", head)
+                 or re.match(r"(?i)\s*(student|undergraduate|graduate student)\b", p["snippet"]))
 
 
 def find_people(company: str, role: str, max_hiring: int = 5, max_team: int = 6) -> list[dict]:
@@ -126,6 +134,8 @@ def find_people(company: str, role: str, max_hiring: int = 5, max_team: int = 6)
             continue
         blob = f"{p['title']} {p['snippet']}".lower()
         if co not in blob:
+            continue
+        if _is_student(p):
             continue
         seen.add(p["url"].lower())
         is_hiring = bool(re.search(outreach.HIRING_TITLES, p["title"].lower()))
@@ -166,7 +176,7 @@ def _heuristic_hook(p: dict) -> tuple[str, str]:
 
 
 COMMON = (  # (pattern in their title/snippet, what to say) - only things that are really true of me
-    (r"university of texas at austin|ut austin|UT.*austin|longhorn", "we're both UT Austin alums"),
+    (r"university of texas at austin|ut austin|\bUT\b.*austin|longhorn", "we're both UT Austin alums"),
     (r"theta tau", "we're both in Theta Tau"),
     (r"pepsico|frito", "we both have PepsiCo experience"),
     (r"delek", "we both have Delek experience"),
