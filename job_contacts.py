@@ -323,6 +323,8 @@ def run(url: str, company: str = "", role: str = "", use_ai: bool = True, open_p
     print(f"\nClickable chart with Copy buttons: {OUT_HTML}")
     if open_page:
         webbrowser.open(OUT_HTML.as_uri())
+        if job.get("resume"):
+            webbrowser.open((BASE_DIR / job["resume"]).as_uri())
     return people
 
 

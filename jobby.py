@@ -974,6 +974,8 @@ def job_link_contacts() -> None:
         with busy("Finding the hiring team and teammates…"):
             job_contacts.run(url.strip(), company, role, use_ai=False, open_page=False)
     webbrowser.open(job_contacts.OUT_HTML.as_uri())
+    for pdf in sorted((job_contacts.BASE_DIR / "resumes").glob("*.pdf"), key=lambda f: f.stat().st_mtime)[-1:]:
+        webbrowser.open(pdf.as_uri())   # the resume just made
     console.print(f"[dim]Tailored resumes are saved in {job_contacts.BASE_DIR / 'resumes'}[/]")
     pause()
 
