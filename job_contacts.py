@@ -260,7 +260,8 @@ button{{cursor:pointer;padding:6px 12px;border:1px solid var(--acc);background:t
 </style>
 <h1>{html.escape(job['role'] or 'Job')} at {html.escape(job['company'])}</h1>
 <div class="sub">Blue = hiring side, green = already on the team. Click Open, then Connect &gt; Add a note, paste.
-<a href="{html.escape(job['url'])}" target="_blank" rel="noopener">Job posting</a></div>
+<a href="{html.escape(job['url'])}" target="_blank" rel="noopener">Job posting</a>
+{('&middot; <a href="' + html.escape(job['resume']) + '" target="_blank">&#128196; Tailored resume (PDF)</a>') if job.get('resume') else ''}</div>
 <div class="wrap"><table><tr><th>Who</th><th>Name (LinkedIn)</th><th>Profile detail used</th><th>Message</th><th></th></tr>
 {''.join(rows)}</table></div>
 <script>
@@ -285,7 +286,7 @@ def print_chart(job: dict, people: list[dict]) -> None:
     Console().print(t)
 
 
-def run(url: str, company: str = "", role: str = "", use_ai: bool = True, open_page: bool = True) -> list[dict]:
+def run(url: str, company: str = "", role: str = "", use_ai: bool = True, open_page: bool = True, resume: bool = True) -> list[dict]:
     try:
         import search_jobs  # noqa: F401  (loads .env)
     except Exception:
@@ -300,6 +301,18 @@ def run(url: str, company: str = "", role: str = "", use_ai: bool = True, open_p
         print("No LinkedIn profiles found for that company.")
         return []
     draft_messages(people, job["company"], job["role"], use_ai)
+    job["resume"] = ""
+    if resume:
+        try:
+            import resume_tailor
+            made = resume_tailor.tailor_for_job(job["company"], job["role"], job.get("text", ""))
+            if made:
+                job["resume"] = made[0].relative_to(BASE_DIR).as_posix()
+                print(f"Tailored resume: {made[0]}  (matched: {', '.join(made[1][:8]) or 'none'})")
+            else:
+                print("No resume profile yet, so no tailored resume. Run 'Resume profile' in the menu first.")
+        except Exception as exc:
+            print(f"[warn] couldn't build the tailored resume: {exc}")
     write_html(job, people)
     print_chart(job, people)
     print(f"\nClickable chart with Copy buttons: {OUT_HTML}")
@@ -315,5 +328,6 @@ if __name__ == "__main__":
     ap.add_argument("--role", default="")
     ap.add_argument("--no-ai", action="store_true")
     ap.add_argument("--no-open", action="store_true")
+    ap.add_argument("--no-resume", action="store_true")
     a = ap.parse_args()
-    run(a.url, a.company, a.role, not a.no_ai, not a.no_open)
+    run(a.url, a.company, a.role, not a.no_ai, not a.no_open, not a.no_resume)

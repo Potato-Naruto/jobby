@@ -43,7 +43,7 @@ Run `python jobby.py`, then use the arrow keys and Enter.
 | **Search jobs** | Finds roles on many job boards and keeps only the ones matching your filters (title, place, remote, how recent, salary). |
 | **Apply to jobs** | Opens a real browser and fills the application from your resume and saved answers. It stops and asks you for anything it shouldn't do itself (accounts, CAPTCHAs). |
 | **LinkedIn outreach** | Drafts a connection note and follow-up for a person, tracks who you've contacted, and reminds you when to follow up. |
-| **Contacts for a job link** | Paste a job URL, get a chart of the hiring team and people on the team. See below. |
+| **Job link: contacts chart + tailored resume** | Paste a job URL, get a chart of the hiring team and people on the team, plus a resume tailored to that role. See below. |
 | **Resume profile** | Reads `resume.pdf` into a profile the other tools use. |
 | **Saved search profiles** | Save and reuse your favourite filters. |
 | **Remembered answers** | See or edit answers Jobby saved from past applications. |
@@ -51,7 +51,7 @@ Run `python jobby.py`, then use the arrow keys and Enter.
 
 ---
 
-## 🔗 Contacts for a job link (the fun one)
+## 🔗 Job link: contacts + tailored resume (the fun one)
 
 Paste a job posting and get a clickable chart of the people to reach out to.
 
@@ -72,6 +72,8 @@ A page called `job_contacts.html` opens in your browser:
 - Click **Copy** to copy that person's message, then paste it.
 - Rows get a ✅ and dim once you open or copy them, and Jobby remembers across visits.
 
+**Tailored resume:** at the same time, Jobby saves a one-page PDF to the `resumes/` folder, named like `Your_Name_Company_Resume.pdf`, and links it at the top of the chart. It never invents or rewords anything: it puts your bullets and skills that best match the posting first, drops the weakest bullets, and adds a one-line summary built from your real profile. Needs your resume parsed first (menu: **Resume profile**).
+
 Each message is short and friendly, mentions something you really have in common when it can find one (same school, same field), and asks for 5 minutes on their calendar.
 
 | Option | What it does |
@@ -80,6 +82,7 @@ Each message is short and friendly, mentions something you really have in common
 | `--role "Title"` | Set the role yourself. |
 | `--no-ai` | Skip the local AI and use plain templates (faster). |
 | `--no-open` | Build the chart without opening the browser. |
+| `--no-resume` | Skip the tailored resume. |
 
 Example when a page blocks Jobby:
 
@@ -156,6 +159,7 @@ Parse your resume on its own: `python parse_resume.py`
 | `search_jobs.py` | Job search across boards. |
 | `app_agent.py` | Application form filler. |
 | `job_contacts.py` | Job link to hiring-team chart. |
+| `resume_tailor.py` | Tailors your resume to a job and saves the PDF. |
 | `outreach.py` | LinkedIn notes and follow-up tracker. |
 | `parse_resume.py` | Resume to profile. |
 | `common.py` | Shared settings and the local AI client. |

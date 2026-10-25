@@ -974,6 +974,7 @@ def job_link_contacts() -> None:
         with busy("Finding the hiring team and teammates…"):
             job_contacts.run(url.strip(), company, role, use_ai=False, open_page=False)
     webbrowser.open(job_contacts.OUT_HTML.as_uri())
+    console.print(f"[dim]Tailored resumes are saved in {job_contacts.BASE_DIR / 'resumes'}[/]")
     pause()
 
 
@@ -1037,7 +1038,7 @@ def main() -> None:
         choice = ask(questionary.select("What would you like to do?", style=STYLE, choices=[
             Choice("Search jobs", "search"), Choice("Apply to jobs (auto-fill in a real browser)", "apply"),
             Choice("LinkedIn outreach (hiring-manager messages)", "outreach"),
-            Choice("Contacts for a job link (hiring team + teammates, clickable chart)", "joblink"),
+            Choice("Job link: contacts chart + tailored resume", "joblink"),
             Choice("Resume profile", "resume"), Choice("Saved search profiles", "profiles"),
             Choice("Remembered answers", "answers"), Choice("Settings", "settings"),
             questionary.Separator(), Choice("Quit", "quit")]))
