@@ -108,6 +108,12 @@ def _response_score(p: dict) -> int:
 def _is_student(p: dict) -> bool:
     """Students and job-seekers can't help with hiring, so they're never suggested."""
     head = p["title"].lower()
+    full = f"{p['title']} {p['snippet']}".lower()
+    if re.search(r"class of '?(20)?2[5-7]\b|\b(20)?2[67]\s+grad|\bgrad(uat\w*)?\W+(date\W+)?(in\s+|of\s+)?(\w+\s+)?20(26|27)\b|"
+                 r"\bexpected\W+(\w+\s+)?20(26|27)\b|\bc/o\s*'?(20)?2[67]\b|'2[67]\b|\bnew grad|\brecent(ly)? grad|"
+                 r"\b20\d\d\s*[-–]\s*(may\s+|dec(ember)?\s+|aug(ust)?\s+)?2026\b[^.]{0,40}(university|college|b\.?s|bachelor|school)|"
+                 r"(university|college|b\.?s|bachelor|school)[^.]{0,60}\b20\d\d\s*[-–]\s*(may\s+|dec(ember)?\s+|aug(ust)?\s+)?2026\b", full):
+        return True
     return bool(re.search(r"\bstudents?\b|\bgraduated\b|\bseeking\b|\baspiring\b|looking for|open to work|\bundergrad|\bcandidate\b|"
                           r"\b(b\.?s\.?|m\.?s\.?)\s+(student|candidate)", head)
                  or re.match(r"(?i)\s*(student|undergraduate|graduate student)\b", p["snippet"]))
