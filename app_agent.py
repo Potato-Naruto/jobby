@@ -3,6 +3,7 @@
 Usage:
     python app_agent.py URL [URL ...]
 """
+import difflib
 import json
 import os
 import re
@@ -66,8 +67,10 @@ SCAN_JS = """
     if (combo) { const ctl = el.closest('[class*=control], [class*=select]'); const sv = ctl && ctl.querySelector('[class*=single-value]'); value = sv ? sv.innerText.trim() : ''; }
     const info = { id, type, label, name: el.name || '',
                    required: !!(el.required || el.getAttribute('aria-required') === 'true' || /\\*\\s*$/.test(label)),
-                   value, checked: !!el.checked, options: [] };
+                   value, checked: !!el.checked, options: [],
+                   limit: (el.maxLength > 0 && el.maxLength < 100000) ? el.maxLength : 0 };
     if (type === 'select') info.options = [...el.options].map(o => o.text.trim()).filter(Boolean);
+    if (type === 'select' && el.selectedIndex <= 0) info.value = '';   // the browser's default first option is not a real choice
     if (type === 'radio') {
       info.options = [labelOf(el) || el.value];
       const fs = el.closest('fieldset, [role=radiogroup]');
@@ -114,6 +117,69 @@ def scan_fields(page: Page) -> list[dict]:
 # --- Answer resolution ------------------------------------------------------
 def norm(label: str) -> str:
     return re.sub(r"[^a-z0-9 ]", "", label.lower().replace("*", "")).strip()
+
+
+# Questions that can knock you out or have legal weight (career-ops "apply" mode): never guessed by the AI.
+SENSITIVE = re.compile(r"sponsor|visa|authori[sz]|eligible to work|salary|compensation|pay expect|desired pay|years of|"
+                       r"degree|veteran|disabilit|gender|race|ethnic|hispanic|sexual|criminal|convict|background check|"
+                       r"clearance|relocat|non-?compete|citizen", re.I)
+LONG_TEXT = re.compile(r"why|cover letter|tell us|describe|additional|anything else|motivat|interest|about you|strength|"
+                       r"challenge|proud|project|example|what makes", re.I)
+
+
+def fit_limit(text: str, limit: int) -> str:
+    """Trim a drafted answer to the field's maxlength, preferring a sentence boundary."""
+    text = re.sub(r"\s+", " ", str(text)).strip()
+    if not limit or len(text) <= limit:
+        return text
+    cut = text[:limit]
+    end = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+    return cut[:end + 1] if end > limit * 0.5 else cut.rstrip()
+
+
+def cached_answer(label: str, cache: dict):
+    """Exact saved answer, else the closest previously answered question (so reworded questions still match)."""
+    key = norm(label)
+    if key in cache:
+        return cache[key]
+    close = difflib.get_close_matches(key, list(cache), n=1, cutoff=0.88)
+    return cache[close[0]] if close else None
+
+
+def knockout_warnings(fields: list[dict], profile: dict) -> list[str]:
+    """Warn-only scan for questions that auto-reject people when the profile may not match (never answers for you)."""
+    ans = profile.get("confirmed_answers", {})
+    out = []
+    for f in fields:
+        l = f["label"].lower()
+        if re.search(r"sponsor", l) and str(ans.get("visa_needs_sponsorship", "")).lower().startswith("yes"):
+            out.append(f"sponsorship question {f['label'][:70]!r}: your profile says you need sponsorship - this may auto-reject")
+        elif re.search(r"salary|compensation|pay expect", l) and not ans.get("desired_comp_answer"):
+            out.append(f"salary question {f['label'][:70]!r}: no desired-comp answer saved, I will ask you")
+        elif re.search(r"years of|degree", l) and f["required"] and f["type"] in ("radio", "select", "combobox"):
+            out.append(f"requirement question {f['label'][:70]!r}: check it against your resume before submitting")
+    return out
+
+
+DRAFT_PROMPT = (
+    "You write short job-application answers for the candidate, in first person, using ONLY facts in the PROFILE. "
+    "Never invent employers, numbers, skills or dates. Reference one concrete thing from the JOB text. "
+    "Plain, specific, no buzzwords, no flattery. Stay under the character LIMIT. "
+    'Reply as JSON: {"answer": "<text>"}.'
+)
+
+
+def draft_text(field: dict, profile: dict, job_text: str):
+    """Draft a free-text answer grounded in the profile and the posting; None when the AI is unavailable."""
+    limit = field.get("limit") or 1200
+    p = {k: v for k, v in profile.items() if k in ("contact", "education", "work_experience", "skills", "projects", "summary")}
+    try:
+        with busy(f"Drafting an answer for {field['label'][:40]!r}…"):
+            r = ask_llm_json(DRAFT_PROMPT, f"QUESTION: {field['label']}\nLIMIT: {limit} characters\n\nJOB:\n{job_text[:3500]}\n\nPROFILE:\n{json.dumps(p)[:6000]}")
+        a = str(r.get("answer", "")).strip()
+        return fit_limit(a, limit) if a else None
+    except Exception:
+        return None
 
 
 MATCH_PROMPT = (
@@ -202,6 +268,24 @@ def quick_answer(field: dict, profile: dict):
         return "No"
     if ("authorized to work" in l or "legally authorized" in l or "eligible to work" in l) and ans.get("work_authorized_us", "").lower().startswith("yes"):
         return "Yes"
+    if re.search(r"salary|compensation|pay expect", l) and ans.get("desired_comp_answer"):
+        return str(ans["desired_comp_answer"])
+    if ("start" in l and ("date" in l or "when" in l or "available" in l)) and ans.get("earliest_start_answer"):
+        return str(ans["earliest_start_answer"])
+    if "notice period" in l and ans.get("notice_period_answer"):
+        return str(ans["notice_period_answer"])
+    if "relocat" in l and ans.get("willing_to_relocate"):
+        return str(ans["willing_to_relocate"])
+    if "pronoun" in l and ans.get("pronouns_answer"):
+        return str(ans["pronouns_answer"])
+    if "citizenship" in l and ans.get("citizenship"):
+        return str(ans["citizenship"])
+    if "clearance" in l and ans.get("security_clearance"):
+        return str(ans["security_clearance"])
+    if ("zip" in l or "postal" in l) and re.search(r"\d{5}", str(ans.get("mailing_address_full", ""))):
+        return re.search(r"\d{5}", ans["mailing_address_full"]).group()
+    if "address" in l and "email" not in l and ans.get("mailing_address_full"):
+        return str(ans["mailing_address_full"])
     if "how did you hear" in l and ans.get("how_did_you_hear_answer"):
         return ans["how_did_you_hear_answer"]
     if "gpa" in l and field.get("required") and ans.get("gpa"):
@@ -354,7 +438,7 @@ def fill_field(page: Page, field: dict, answer) -> None:
 CONSENT = re.compile(r"acknowledg|i agree|agree to|consent|certify|i understand|privacy|terms|double-check|attest|i confirm|declare", re.I)
 
 
-def fill_page(page: Page, profile: dict, cache: dict) -> list[str]:
+def fill_page(page: Page, profile: dict, cache: dict, job_text: str = "") -> list[str]:
     """Scan the current page and fill every field we can resolve (asking about required ones we can't)."""
     best: dict[str, dict] = {}
     for f in scan_fields(page):
@@ -394,23 +478,42 @@ def fill_page(page: Page, profile: dict, cache: dict) -> list[str]:
     if needs_llm:
         llm_answers = llm_match(needs_llm, profile, cache, summarize)
 
-    skipped, consent, blockers = [], [], []
+    for w in knockout_warnings(todo, profile):
+        print(f"  [!] knock-out check: {w}")
+
+    skipped, consent, blockers, drafted = [], [], [], []
     for f in todo:
         key = norm(f["label"])
         if f["type"] != "file" and CONSENT.search(f["label"]):
             consent.append(f["label"])           # legal acknowledgements are for YOU to tick
             continue
+        sensitive = bool(SENSITIVE.search(f["label"]))
+        quick = quick_answer(f, profile)
+        saved = cached_answer(f["label"], cache) if f["type"] != "file" else None
+        llm_ans = llm_answers.get(f["id"])
         if f["type"] == "file":
             if not resume_file().exists():
                 print(f"[warn] {resume_file().name} missing; skipping file field {f['label']!r}.")
                 continue
             answer = str(resume_file())
-        elif key in cache:
-            answer = cache[key]
-        elif valid_answer(f, llm_answers.get(f["id"])):
-            answer = llm_answers[f["id"]]
-        elif quick_answer(f, profile) and (valid_answer(f, quick_answer(f, profile)) or norm(f["label"]) in ("school", "university", "college")):
-            answer = quick_answer(f, profile)
+        elif saved is not None and valid_answer(f, saved):
+            answer = saved
+        elif quick and (valid_answer(f, quick) or key in ("school", "university", "college")):
+            answer = quick                       # facts you confirmed beat anything the AI says
+        elif not sensitive and valid_answer(f, llm_ans):
+            answer = llm_ans
+        elif f["type"] == "textarea" or (f["type"] == "text" and LONG_TEXT.search(f["label"]) and f.get("limit", 0) > 150):
+            answer = draft_text(f, profile, job_text) if (f["required"] or LONG_TEXT.search(f["label"])) else None
+            if answer:
+                drafted.append(f["label"])
+            elif not f["required"]:
+                skipped.append(f["label"])
+                continue
+            else:
+                answer = ask_user(f)
+                if not answer:
+                    blockers.append(f"required field left empty: {f['label'][:60]}")
+                    continue
         elif not f["required"]:
             skipped.append(f["label"])      # optional and unknown: don't interrupt you
             continue
@@ -422,6 +525,8 @@ def fill_page(page: Page, profile: dict, cache: dict) -> list[str]:
                 continue
             cache[key] = answer                      # remember for future applications
             save_json(QA_CACHE_JSON, cache)
+        if f["type"] in ("text", "textarea") and f.get("limit"):
+            answer = fit_limit(answer, f["limit"])
         try:
             fill_field(page, f, answer)
             print(f"  filled {f['label']!r}")
@@ -431,6 +536,17 @@ def fill_page(page: Page, profile: dict, cache: dict) -> list[str]:
             print(f"  [warn] could not fill {f['label']!r}: {str(exc).splitlines()[0]}")
             if f["required"]:
                 blockers.append(f"could not fill required field: {f['label'][:60]}")
+    if drafted:
+        blockers += [f"review the drafted answer: {d[:60]}" for d in drafted]
+        print(f"  [!] {len(drafted)} free-text answer(s) were drafted by the AI from your profile - read them before submitting.")
+    try:                                        # sweep: every required control must now be non-empty
+        for f in scan_fields(page):
+            empty = not (f["checked"] if f["type"] in ("checkbox", "radio") else f["value"] or f["type"] == "file")
+            if f["required"] and empty and f["label"] and not CONSENT.search(f["label"]) \
+                    and not any(b.endswith(f["label"][:60]) for b in blockers):
+                blockers.append(f"required field still empty: {f['label'][:60]}")
+    except PlaywrightError:
+        pass
     if consent:
         blockers += [f"tick yourself: {c[:60]}" for c in consent]
         print(f"  [!] {len(consent)} consent/acknowledgement box(es) left for you to tick yourself:")
@@ -741,6 +857,10 @@ def apply_to(page: Page, url: str, profile: dict, cache: dict) -> None:
         with busy("Looking for the application form…"):
             page = open_application_form(page)
         page = settle(page)
+    try:
+        job_text = page.inner_text("body", timeout=3000)[:4000]
+    except PlaywrightError:
+        job_text = ""
     while True:
         if AGGREGATORS.search(page.url) and real_fields(page) < 4:
             if ACCOUNT_WALL.search(page.url):
@@ -750,7 +870,7 @@ def apply_to(page: Page, url: str, profile: dict, cache: dict) -> None:
             print("    Get to the application form in the browser yourself, then choose [r]; or [n] to skip.")
             blockers = ["not on an application form"]
         else:
-            blockers = fill_page(page, profile, cache)
+            blockers = fill_page(page, profile, cache, job_text)
         if AUTO_SUBMIT and not blockers:
             if auto_submit(page):
                 return

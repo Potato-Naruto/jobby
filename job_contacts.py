@@ -267,18 +267,19 @@ def write_html(job: dict, people: list[dict]) -> None:
 <style>
 :root{{--bg:#fff;--fg:#1a1a1a;--mut:#666;--line:#e2e2e2;--acc:#0a66c2;--h:#e8f3ff;--t:#eef8ee}}
 @media(prefers-color-scheme:dark){{:root{{--bg:#16181c;--fg:#e8e8e8;--mut:#9aa;--line:#2c3036;--acc:#6db3ff;--h:#1b2a3a;--t:#1c2c1f}}}}
-body{{margin:0;padding:24px 16px;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,sans-serif}}
-h1{{font-size:20px;margin:0 0 4px}} .sub{{color:var(--mut);margin-bottom:16px}}
-.wrap{{overflow-x:auto}} table{{border-collapse:collapse;width:100%;min-width:760px}}
-th,td{{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid var(--line)}}
-th{{font-size:12px;text-transform:uppercase;color:var(--mut)}}
+body{{margin:0;padding:36px 24px;background:var(--bg);color:var(--fg);font:22.5px/1.45 system-ui,sans-serif}}
+h1{{font-size:30px;margin:0 0 6px}} .sub{{color:var(--mut);margin-bottom:24px}}
+.wrap{{overflow-x:auto}} table{{border-collapse:collapse;width:100%;min-width:1140px}}
+th,td{{text-align:left;vertical-align:top;padding:15px;border-bottom:1.5px solid var(--line)}}
+th{{font-size:18px;text-transform:uppercase;color:var(--mut)}}
 tr.hiring{{background:var(--h)}} tr.team{{background:var(--t)}}
-.tag{{font-size:12px;font-weight:600}} .t{{color:var(--mut);font-size:13px}} .hook{{font-style:italic;max-width:200px}}
-.msg{{max-width:460px}} a{{color:var(--acc);font-weight:600}} .go{{font-size:13px}}
-tr.likely .t{{font-weight:600;color:var(--fg)}} .lk{{font-size:12px;font-weight:700;color:#b26a00}} tr.likely td{{font-weight:600}}
-tr.done{{opacity:.5}} tr.done .msg,tr.done a:not(.go){{text-decoration:line-through}} .ck{{width:18px;height:18px;vertical-align:middle;accent-color:#2a9d3f}}
-button{{cursor:pointer;padding:6px 12px;border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:6px;font-weight:600}}
+.tag{{font-size:18px;font-weight:600}} .t{{color:var(--mut);font-size:19.5px}} .hook{{font-style:italic;max-width:300px}}
+.msg{{max-width:690px}} a{{color:var(--acc);font-weight:600}} .go{{font-size:19.5px}}
+tr.likely .t{{font-weight:600;color:var(--fg)}} .lk{{font-size:18px;font-weight:700;color:#b26a00}} tr.likely td{{font-weight:600}}
+.zoom{{float:right;display:flex;gap:6px;position:sticky;top:8px;z-index:9}} tr.done{{opacity:.5}} tr.done .msg,tr.done a:not(.go){{text-decoration:line-through}} .ck{{width:27px;height:27px;vertical-align:middle;accent-color:#2a9d3f}}
+button{{cursor:pointer;padding:9px 18px;border:1.5px solid var(--acc);background:transparent;color:var(--acc);border-radius:9px;font-weight:600}}
 </style>
+<div class="zoom"><button onclick="zs(-.1)" title="Smaller">A&minus;</button><button onclick="zs(0)" title="Reset">100%</button><button onclick="zs(.1)" title="Bigger">A+</button></div>
 <h1>{html.escape(job['role'] or 'Job')} at {html.escape(job['company'])}</h1>
 <div class="sub">Blue = hiring side, green = already on the team. Click Open, then Connect &gt; Add a note, paste.
 <a href="{html.escape(job['url'])}" target="_blank" rel="noopener">Job posting</a>
@@ -290,6 +291,9 @@ function store(){{try{{return JSON.parse(localStorage.getItem('jc_done')||'{{}}'
 function mark(el,on){{const tr=el.closest('tr');tr.classList.toggle('done',on);tr.querySelector('.ck').checked=on;
  try{{const d=store();if(on)d[tr.dataset.k]=1;else delete d[tr.dataset.k];localStorage.setItem('jc_done',JSON.stringify(d))}}catch(e){{}}}}
 function cp(i,b){{const tr=b.closest('tr');navigator.clipboard.writeText(document.getElementById('m'+i).innerText).then(()=>{{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1500)}});mark(tr,true)}}
+let z=1;try{{z=parseFloat(localStorage.getItem('jc_zoom'))||1}}catch(e){{}}
+function zs(d){{z=d?Math.min(3,Math.max(.5,Math.round((z+d)*10)/10)):1;document.body.style.zoom=z;document.querySelector('.zoom button:nth-child(2)').textContent=Math.round(z*100)+'%';try{{localStorage.setItem('jc_zoom',z)}}catch(e){{}}}}
+if(z!==1){{document.body.style.zoom=z;document.querySelector('.zoom button:nth-child(2)').textContent=Math.round(z*100)+'%'}}
 const d0=store();document.querySelectorAll('tr[data-k]').forEach(tr=>{{if(d0[tr.dataset.k])mark(tr,true)}});
 </script>"""
     OUT_HTML.write_text(page, encoding="utf-8")
